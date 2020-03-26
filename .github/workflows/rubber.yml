@@ -26,8 +26,7 @@ jobs:
         path: idempiere
     
     - name: Create folder for customize plugins
-      working-directory: $GITHUB_WORKSPACE
-      shell: bash
+      # ERROR: working-directory: $GITHUB_WORKSPACE it make build fail with error "No such file or directory"
       run: mkdir $GITHUB_WORKSPACE/project.extra.bundle
       
     - name: Checkout plugin th.motive.jasper.report.font
@@ -45,8 +44,6 @@ jobs:
     # run shell: https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun
     # Append maven stuff to build include plugins
     - name: Prepare plugin for maven
-      working-directory: $GITHUB_WORKSPACE
-      shell: bash
       run: |
         cat << "EOT" > $GITHUB_WORKSPACE/project.extra.bundle/pom.xml
           <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -75,5 +72,8 @@ jobs:
         java-version: 11
     
     - name: Build with Maven
-      working-directory: $GITHUB_WORKSPACE/idempiere
-      run: mvn verify
+      run: |
+        cd $GITHUB_WORKSPACE/idempiere/org.idempiere.parent
+        mvn install
+        cd $GITHUB_WORKSPACE/idempiere
+        mvn -X -e verify
