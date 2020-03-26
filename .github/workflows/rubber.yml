@@ -76,4 +76,29 @@ jobs:
         cd $GITHUB_WORKSPACE/idempiere/org.idempiere.parent
         mvn install
         cd $GITHUB_WORKSPACE/idempiere
-        mvn -X -e verify
+        mvn verify
+        jar cfM $GITHUB_WORKSPACE/idempiereServerRubber.gtk.linux.x86_64.jar -C $GITHUB_WORKSPACE/idempiere/org.idempiere.p2/target/products/org.adempiere.server.product/linux/gtk x86_64
+
+    # https://www.github.com/actions/create-release
+    # https://github.com/actions/upload-release-asset
+    - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: $GITHUB_WORKSPACE/idempiereServerRubber.gtk.linux.x86_64.jar
+          asset_name: idempiereServerRubber.gtk.linux.x86_64.jar
+          asset_content_type: application/jar
